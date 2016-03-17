@@ -1,6 +1,8 @@
 #ifndef DNS_RECORD_H
 #define DNS_RECORD_H
 
+#include <stdint.h>
+
 struct dnsrecord_params {
     char *name;
     uint16_t type;
@@ -14,7 +16,7 @@ typedef struct {
     struct dnsrecord_params *params;
 } dnsrecord_t;
 
-struct dnsrecord_params *new_dnsrecord_params(void);
-dnsrecord_t *new_dnsrecord(struct dnsrecord_params *params);
+dnsrecord_t *dnsrecord_new(void);
+void dnsrecord_free(dnsrecord_t *);
 
 #endif

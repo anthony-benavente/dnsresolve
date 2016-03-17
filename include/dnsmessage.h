@@ -1,6 +1,9 @@
 #ifndef DNSMESSAGE_H
 #define DNSMESSAGE_H
 
+#include <stdint.h>
+#include <stdlib.h>
+
 #include "dnsrecord.h"
 
 #define DNSMSG_OPT_QR 0x8000
@@ -42,7 +45,7 @@ typedef struct {
 struct dnsmsg_header *new_dnsmsg_header(void);
 struct dnsmsg_query *new_dnsmsg_query(void);
 
-dnsmsg_t *new_dnsmessage(uint8_t options);
+dnsmsg_t *new_dnsmessage(uint16_t options);
 
 void dnsmsg_print(dnsmsg_t *);
 

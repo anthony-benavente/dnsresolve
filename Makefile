@@ -11,7 +11,7 @@ LIB :=
 INC := -I include
 
 $(TARGET): $(OBJECTS)
-    @mkdir -p bin
+	@mkdir -p bin
 	@echo " Linking..."
 	@echo "$(CC) $^ -o $(TARGET) $(LIB)"; $(CC) $^ -o $(TARGET) $(LIB)
 
