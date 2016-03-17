@@ -3,7 +3,7 @@
 #include <time.h>
 
 #include "dnstypes.h"
-#include "dnsmessage.h"
+#include "dnsmsg.h"
 
 int main(void) {
     srand(time(NULL));

@@ -1,4 +1,4 @@
-#include "dnsmessage.h"
+#include "dnsmsg.h"
 
 #include "wrappers.h"
 
