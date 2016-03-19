@@ -26,6 +26,8 @@
 #define DNS_RCODE_IMPL 4
 #define DNS_RCODE_REFUSED 5
 
-
+#define DNS_OPCODE_QUERY 0
+#define DNS_OPCODE_IQUERY 1
+#define DNS_OPCODE_STATUS 2
 
 #endif
