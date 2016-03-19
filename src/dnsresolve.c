@@ -25,7 +25,7 @@ int main(void) {
     // }
     // printf("\n");    
     
-    dnsmsg_t *response = nsclient_resolve(dns_ip, 53, query);
+    dnsmsg_t *response = dnsclient_resolve(dns_ip, 53, query);
     
     dnsmsg_free(query);
     dnsmsg_free(response);

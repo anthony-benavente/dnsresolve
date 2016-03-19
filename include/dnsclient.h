@@ -13,6 +13,6 @@
  * @param dnsmsg_t * -  This is the message to send to the DNS server
  * @return The dnsmsg_t * that was returned back from the DNS server
  */
-dnsmsg_t *nsclient_resolve(uint8_t ip[4], int port, dnsmsg_t *query);
+dnsmsg_t *dnsclient_resolve(uint8_t ip[4], int port, dnsmsg_t *query);
 
 #endif
