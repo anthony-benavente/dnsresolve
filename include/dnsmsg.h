@@ -14,14 +14,14 @@
 
 struct dnsmsg_header {
     uint16_t id;
-    uint8_t qr : 1;
-    uint8_t opcode  : 4;
-    uint8_t aa : 1;
-    uint8_t tc : 1;
-    uint8_t rd : 1;
-    uint8_t ra : 1;
-    uint8_t z : 3;
-    uint8_t rcode : 4;
+    uint8_t qr;
+    uint8_t opcode;
+    uint8_t aa;
+    uint8_t tc;
+    uint8_t rd;
+    uint8_t ra;
+    uint8_t z;
+    uint8_t rcode;
     uint16_t qdcount;
     uint16_t ancount;
     uint16_t nscount;
@@ -29,9 +29,9 @@ struct dnsmsg_header {
 };
 
 struct dnsmsg_query {
-    char *qname;
+    uint8_t *qname;
     uint16_t qtype;
-    uint16_t qclass;  
+    uint16_t qclass;
 };
 
 typedef struct {
@@ -42,13 +42,24 @@ typedef struct {
     dnsrecord_t *additional; 
 } dnsmsg_t;
 
-struct dnsmsg_header *new_dnsmsg_header(void);
+struct dnsmsg_header *new_dnsmsg_header(uint16_t options);
 struct dnsmsg_query *new_dnsmsg_query(void);
 
-dnsmsg_t *new_dnsmessage(uint16_t options);
+dnsmsg_t *dnsmsg_new(uint16_t options);
 
 void dnsmsg_print(dnsmsg_t *);
 
 void dnsmsg_free(dnsmsg_t *);
 
+dnsmsg_t *dnsmsg_construct(uint8_t *buf, ssize_t buf_len);
+
+dnsmsg_t *dnsmsg_create_query(const char *name, int qtype, int qclass);
+
+uint8_t *dnsmsg_create_name(const char *name);
+
+int dnsmsg_to_bytes(dnsmsg_t *msg, uint8_t **buf);
+
+int dnsmsg_to_bytes_header(dnsmsg_t *msg, uint8_t **buf);
+
+int dnsmsg_to_bytes_query(dnsmsg_t *msg, uint8_t **buf);
 #endif
