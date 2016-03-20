@@ -2,6 +2,7 @@ CC := gcc
 SRCDIR := src
 BUILDDIR := build
 TARGET := bin/runner
+DOCS := docs
 
 SRCEXT := c
 SOURCES := $(shell find $(SRCDIR) -type f -name *.$(SRCEXT))
@@ -18,6 +19,11 @@ $(TARGET): $(OBJECTS)
 $(BUILDDIR)/%.o: $(SRCDIR)/%.$(SRCEXT)
 	@mkdir -p $(BUILDDIR)
 	@echo " $(CC) $(CFLAGS) $(INC) -c -o $@ $<"; $(CC) $(CFLAGS) $(INC) -c -o $@ $<
+
+.PHONY: docs
+docs:
+	@mkdir -p $(DOCS)
+	doxygen
 
 run:
 	make; bin/runner
