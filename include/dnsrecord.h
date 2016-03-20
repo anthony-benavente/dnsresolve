@@ -34,7 +34,7 @@ typedef struct {
     uint16_t type;
     
     /** The class associated with this record */
-    uint16_t class;
+    uint16_t rclass;
     
     /** Used to determine how many "hops" this packet can make */
     uint32_t ttl;
