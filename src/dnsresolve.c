@@ -34,6 +34,8 @@ int main(void) {
     
     dnsmsg_t *response = dnsclient_resolve(dns_ip, 53, query);
     
+    dnsmsg_print(response);
+    
     dnsmsg_free(query);
     dnsmsg_free(response);
     

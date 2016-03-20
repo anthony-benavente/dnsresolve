@@ -7,9 +7,15 @@
 
 #define MAX_NAME_LEN 256
 
+#define DNS_OPCODE_MASK 0x7800
+#define DNS_RCODE_MASK 0xf
+#define DNS_Z_MASK 0x70
+
 void append_to_buf8(uint8_t **buf, uint8_t val);
 void append_to_buf16(uint8_t **buf, uint16_t val);
 uint16_t dnsmsg_header_get_opt(struct dnsmsg_header *);
+uint16_t get_uint16(uint8_t **buf);
+struct dnsmsg_header *dnsmsg_parse_header(uint8_t **buf);
 
 struct dnsmsg_header *new_dnsmsg_header(uint16_t options) {
     struct dnsmsg_header *result = _malloc(sizeof(struct dnsmsg_header));
@@ -58,7 +64,30 @@ void dnsmsg_free(dnsmsg_t *msg) {
 }
 
 dnsmsg_t *dnsmsg_construct(uint8_t *buf, ssize_t buf_len) {
-    return NULL;
+    dnsmsg_t *result = malloc(sizeof(dnsmsg_t));
+
+    result->header = dnsmsg_parse_header(buf);
+    
+    return result;
+}
+
+struct dnsmsg_header *dnsmsg_parse_header(uint8_t **buf) {
+    struct dnsmsg_header *result = malloc(sizeof(struct dnsmsg_header));
+    result->id = get_uint16(buf);
+    uint16_t row_2 = get_uint16(buf);
+    result->qr = (row_2 & DNSMSG_OPT_QR) >> 15;
+    result->opcode = (row_2 & DNS_OPCODE_MASK) >> 11;
+    result->aa = (row_2 & DNSMSG_OPT_AA) >> 10;
+    result->tc = (row_2 & DNSMSG_OPT_TC) >> 9;
+    result->rd = (row_2 & DNSMSG_OPT_RD) >> 8;
+    result->ra = (row_2 & DNSMSG_OPT_RA) >> 7;
+    result->z = (row_2 & DNS_Z_MASK) >> 4;
+    result->rcode = (row_2 & DNS_RCODE_MASK);
+    result->qdcount = get_uint16(buf);
+    result->ancount = get_uint16(buf);
+    result->nscount = get_uint16(buf);
+    result->arcount = get_uint16(buf);
+    return result;
 }
 
 dnsmsg_t *dnsmsg_create_query(const char *name, int qtype, int qclass) {
@@ -157,4 +186,8 @@ void append_to_buf16(uint8_t **buf, uint16_t val) {
 uint16_t dnsmsg_header_get_opt(struct dnsmsg_header *h) {
     return  h->qr << 15 | h->opcode << 14 | h->aa << 10 | h->tc << 9 | 
         h->rd << 8 | h->ra << 7 |  h->z << 6 | h->rcode;
+}
+
+uint16_t get_uint16(uint8_t **buf) {
+    return (*(*buf)++ << 8) | *(*buf)++; // I'm so sorry if you have to read this line
 }
