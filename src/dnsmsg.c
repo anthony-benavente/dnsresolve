@@ -45,6 +45,7 @@ dnsmsg_t *dnsmsg_new(uint16_t options) {
 void dnsmsg_print(dnsmsg_t *msg) {
     printf("-----------------------------------------------\n");
     printf(" DNS PACKET HEADER\n");
+    printf("   ID: 0x%x\n", msg->header->id);
     printf("   Response Code: 0x%x\n", msg->header->rcode);
     printf("   Flags: 0x%x\n", dnsmsg_header_get_opt(msg->header));
     printf("   Questions: %d\n", msg->header->qdcount);
