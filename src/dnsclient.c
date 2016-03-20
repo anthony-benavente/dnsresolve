@@ -13,7 +13,6 @@ dnsmsg_t *dnsclient_resolve(uint8_t ip[4], int port, dnsmsg_t *query) {
     // This buffer is used to send AND receive information
     uint8_t buf[MAX_BUF_SIZE];
     uint8_t *buf_ptr = buf;
-    uint8_t *buf_ptr_start = buf_ptr;
     int buf_len = dnsmsg_to_bytes(query, &buf_ptr);
     int bytes_sent, bytes_rcvd;
     unsigned int addrlen;
