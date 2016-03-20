@@ -1,8 +1,16 @@
 #ifndef DNSCLIENT_H
 #define DNSCLIENT_H
 
-#include <stdint.h>
+/**
+ * This file holds the function prototypes for the UDP client used to query
+ * the desired DNS server.
+ *
+ * @author Anthony Benavente
+ * @version 03/19/2016
+ */
 
+
+#include <stdint.h>
 #include "dnsmsg.h"
 
 /**

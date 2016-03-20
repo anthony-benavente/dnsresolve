@@ -1,6 +1,13 @@
 #ifndef DNSTYPES_H
 #define DNSTYPES_H
 
+/**
+ * This file holds the macros used throughout the program.
+ *
+ * @author Anthony Benavente
+ * @version 03/20/2016
+ */ 
+
 #define DNS_TYPE_A 1
 #define DNS_TYPE_NS 2
 #define DNS_TYPE_CNAME 5
