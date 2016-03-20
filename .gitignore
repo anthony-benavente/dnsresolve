@@ -39,3 +39,6 @@ cxxtests/
 testrunner.cpp
 testresults.log
 testrunner
+
+# Documentation
+docs/
