@@ -95,7 +95,7 @@ struct dnsmsg_query {
     /**
      * This is the byte buffer holding the name in question
      */
-    uint8_t *qname;
+    char *qname;
     
     /**
      * This is the query type which can be specified through the "dnstypes.h"
