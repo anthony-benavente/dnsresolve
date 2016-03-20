@@ -18,20 +18,7 @@ int main(void) {
     
     uint8_t dns_ip[] = { 8,8,8,8 };
     dnsmsg_t *query = dnsmsg_create_query("www.google.com", 
-        DNS_TYPE_A, DNS_CLASS_IN);
-    
-    // int i = 1;
-    // int new_ln = 0;
-    // for (; i <= n; i++) {
-    //     printf("%2x ", beginning[i - 1], beginning[i - 1]);
-        
-    //     new_ln = i % 8;
-    //     if (!new_ln) {
-    //         printf("\n");
-    //     }
-    // }
-    // printf("\n");    
-    
+        DNS_TYPE_A, DNS_CLASS_IN);    
     dnsmsg_t *response = dnsclient_resolve(dns_ip, 53, query);
     
     dnsmsg_print(response);
