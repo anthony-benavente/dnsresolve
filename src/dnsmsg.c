@@ -7,8 +7,8 @@
 
 #define MAX_NAME_LEN 256
 
-void append_to_buf_uint16(uint8_t **buf, uint16_t val);
-void append_to_buf_uint8(uint8_t **buf, uint8_t val);
+void append_to_buf8(uint8_t **buf, uint8_t val);
+void append_to_buf16(uint8_t **buf, uint16_t val);
 uint16_t dnsmsg_header_get_opt(struct dnsmsg_header *);
 
 struct dnsmsg_header *new_dnsmsg_header(uint16_t options) {
@@ -49,7 +49,7 @@ void dnsmsg_print(dnsmsg_t *msg) {
 }
 
 void dnsmsg_free(dnsmsg_t *msg) {
-    if (msg->header) free(msg->header);
+    if (msg->header) free(msg->header); 
     if (msg->query) {
         if (msg->query->qname) free(msg->query->qname);
         free(msg->query);
@@ -126,7 +126,7 @@ int dnsmsg_to_bytes_query(dnsmsg_t *msg, uint8_t **buf) {
         i = 0;
     
     // Convert qname
-    uint8_t *qname = dnsmsg_create_name(msg->query->qname);
+    uint8_t *qname = msg->query->qname;
     for (; qname[i] != 0; i++) {
         append_to_buf8(buf, qname[i]);
         num_bytes++;
@@ -141,8 +141,6 @@ int dnsmsg_to_bytes_query(dnsmsg_t *msg, uint8_t **buf) {
     // Convert qclass
     append_to_buf16(buf, msg->query->qclass);
     num_bytes += 2;
-    
-    free(qname);
     
     return num_bytes;
 }
