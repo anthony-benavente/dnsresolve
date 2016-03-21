@@ -17,8 +17,9 @@ uint16_t dnsmsg_header_get_opt(struct dnsmsg_header *);
 uint16_t get_uint16(uint8_t **buf);
 uint8_t get_uint8(uint8_t **buf);
 struct dnsmsg_header *dnsmsg_parse_header(uint8_t **buf);
-struct dnsmsg_query *dnsmsg_parse_query(uint8_t **buf);
-char *dnsmsg_parse_name(uint8_t **buf);
+struct dnsmsg_query *dnsmsg_parse_query(uint8_t **buf, uint8_t *original);
+char *dnsmsg_parse_name(uint8_t **buf, uint8_t *original);
+dnsrecord_t *dnsmsg_parse_record(uint8_t **buf, uint8_t *original);
 
 struct dnsmsg_header *new_dnsmsg_header(uint16_t options) {
     struct dnsmsg_header *result = _malloc(sizeof(struct dnsmsg_header));
@@ -47,19 +48,25 @@ dnsmsg_t *dnsmsg_new(uint16_t options) {
 
 void dnsmsg_print(dnsmsg_t *msg) {
     printf("-----------------------------------------------\n");
-    printf(" DNS PACKET HEADER\n");
-    printf("   ID: 0x%x\n", msg->header->id);
-    printf("   Response Code: 0x%x\n", msg->header->rcode);
-    printf("   Flags: 0x%x\n", dnsmsg_header_get_opt(msg->header));
-    printf("   Questions: %d\n", msg->header->qdcount);
-    printf("   Answers: %d\n", msg->header->ancount);
-    printf("   Authority: %d\n", msg->header->nscount);
-    printf("   Additional: %d\n", msg->header->arcount);
-    printf("-----------------------------------------------\n");
-    printf(" Question Section\n");
-    printf("   QNAME: %s\n", msg->query->qname);
-    printf("   QTYPE: %x\n", msg->query->qtype);
-    printf("   QCLASS: %x\n", msg->query->qclass);
+    printf(";; Header\n\n");
+    printf("  ID:             %-#4x\n", msg->header->id);
+    printf("  Response Code:  %-#4x\n", msg->header->rcode);
+    printf("  Flags:          %-#4x\n", dnsmsg_header_get_opt(msg->header));
+    printf("  Questions:      %-4d\n", msg->header->qdcount);
+    printf("  Answers:        %-4d\n", msg->header->ancount);
+    printf("  Authority:      %-4d\n", msg->header->nscount);
+    printf("  Additional:     %-4d\n", msg->header->arcount);
+    printf("\n");
+    printf(";; Question Section\n");
+    printf("  QNAME: %s\n", msg->query->qname);
+    printf("  QTYPE: %x\n", msg->query->qtype);
+    printf("  QCLASS: %x\n", msg->query->qclass);
+    printf("\n");
+    printf(";; Answer Section\n");
+    int i = 0;
+    for (; i < msg->header->ancount; i++) {
+        dnsrecord_print(msg->answer[i]);
+    }
     printf("-----------------------------------------------\n");
 }
 
@@ -72,11 +79,29 @@ void dnsmsg_free(dnsmsg_t *msg) {
     free(msg);
 }
 
-dnsmsg_t *dnsmsg_construct(uint8_t *buf, ssize_t buf_len) {
+dnsmsg_t *dnsmsg_parse(uint8_t **buf, ssize_t buf_len) {
+    uint8_t *original = *buf;
+    
     dnsmsg_t *result = malloc(sizeof(dnsmsg_t));
-
+    int i = 0;
+    
     result->header = dnsmsg_parse_header(buf);
-    result->query = dnsmsg_parse_query(buf);
+    result->query = dnsmsg_parse_query(buf, original);
+    
+    result->answer = malloc(sizeof(dnsrecord_t *) * result->header->ancount);
+    for (i = 0; i < result->header->ancount; i++) {
+        result->answer[i] = dnsmsg_parse_record(buf, original);
+    }
+    
+    result->auth = malloc(sizeof(dnsrecord_t) * result->header->nscount);
+    for (i = 0; i < result->header->nscount; i++) {
+        result->auth[i] = dnsmsg_parse_record(buf, original);
+    }
+    
+    result->additional = malloc(sizeof(dnsrecord_t) * result->header->arcount);
+    for (i = 0; i < result->header->arcount; i++) {
+        result->additional[i] = dnsmsg_parse_record(buf, original);
+    }
     
     return result;
 }
@@ -100,27 +125,43 @@ struct dnsmsg_header *dnsmsg_parse_header(uint8_t **buf) {
     return result;
 }
 
-struct dnsmsg_query *dnsmsg_parse_query(uint8_t **buf) {
+struct dnsmsg_query *dnsmsg_parse_query(uint8_t **buf, uint8_t *original_buf) {
     struct dnsmsg_query *result = malloc(sizeof(struct dnsmsg_query));
-    result->qname = dnsmsg_parse_name(buf);
+    result->qname = dnsmsg_parse_name(buf, original_buf);
     result->qtype = get_uint16(buf);
     result->qclass = get_uint16(buf);
     return result;
 }
 
-char *dnsmsg_parse_name(uint8_t **buf) {
-    int reading_ptr = 0,
-        i = 0;
+dnsrecord_t *dnsmsg_parse_record(uint8_t **buf, uint8_t *original_buf) {
+    int i;
+    dnsrecord_t *result = dnsrecord_new();
+    result->name = dnsmsg_parse_name(buf, original_buf);
+    result->type = get_uint16(buf);
+    result->rclass = get_uint16(buf);
+    result->ttl = (get_uint16(buf) << 16) | get_uint16(buf);
+    result->rdlength = get_uint16(buf);
+    result->rdata = malloc(sizeof(uint8_t *) * result->rdlength);
+    for (i = 0; i < result->rdlength; i++) {
+        result->rdata[i] = get_uint8(buf);
+    }
+    return result;
+}
+
+char *dnsmsg_parse_name(uint8_t **buf, uint8_t *original_buf) {
+    int i = 0;
     uint8_t label_len = get_uint8(buf);
     char *name = calloc(sizeof(char *), MAX_NAME_LEN);
     char *name_ptr = name;
     do {
-        if ((label_len & 0xc0) == 0xc0) { // label_len indicates a pointer
+        if ((label_len & 0xc0) == 0xc0) {
+             // label_len indicates a pointer
+            uint16_t offset = ((label_len & 0x3f) << 8) | get_uint8(buf);
             // Rewind buf
-            uint8_t **new_buf_pos = buf[label_len & 0x3f];
-            int new_label_len = get_uint8(new_buf_pos);
+            uint8_t *new_buf_pos = original_buf + offset;
+            int new_label_len = *(new_buf_pos++);
             for (i = 0; i < new_label_len; i++) {
-                *(name_ptr++) = (char) get_uint8(new_buf_pos);
+                *(name_ptr++) = (char) *(new_buf_pos++);
             }
             *(name_ptr++) = '.';
         } else {

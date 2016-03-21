@@ -117,9 +117,9 @@ struct dnsmsg_query {
 typedef struct {
     struct dnsmsg_header *header;
     struct dnsmsg_query *query; 
-    dnsrecord_t *answer;  // TODO Make sure these are freed
-    dnsrecord_t *auth; 
-    dnsrecord_t *additional; 
+    dnsrecord_t **answer;  // TODO Make sure these are freed
+    dnsrecord_t **auth; 
+    dnsrecord_t **additional; 
 } dnsmsg_t;
 
 /**
@@ -179,7 +179,7 @@ void dnsmsg_free(dnsmsg_t *dnsmsg);
  * @return a pointer to the created dnsmsg_t object or NULL if an error 
  * occured.
  */
-dnsmsg_t *dnsmsg_construct(uint8_t *buf, ssize_t buf_len);
+dnsmsg_t *dnsmsg_parse(uint8_t **buf, ssize_t buf_len);
 
 /**
  * Creates a dnsmsg_t object that is a query for a name. This is what should
