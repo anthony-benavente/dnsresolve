@@ -49,5 +49,5 @@ dnsmsg_t *dnsclient_resolve(uint8_t ip[4], int port, dnsmsg_t *query) {
     
     buf_ptr = buf;
     // Return parsed information packaged in a dnsmsg_t
-    return dnsmsg_construct(&buf_ptr, bytes_rcvd);
+    return dnsmsg_parse(&buf_ptr, bytes_rcvd);
 }
