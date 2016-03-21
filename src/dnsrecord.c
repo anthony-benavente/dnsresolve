@@ -15,3 +15,12 @@ dnsrecord_t *dnsrecord_new(void) {
 void dnsrecord_free(dnsrecord_t *record) {
     free(record);
 }
+
+void dnsrecord_print(dnsrecord_t *record) {
+    printf("  NAME:     %s\n", record->name);
+    printf("  TYPE:     %-#4x\n", record->type);
+    printf("  CLASS:    %-#4x\n", record->rclass);
+    printf("  TTL:      %-8d\n", record->ttl);
+    printf("  RDLENGTH: %-4d\n", record->rdlength);
+    printf("  RDATA:    %p\n", record->rdata); // TODO: printing pointer is tmp
+}

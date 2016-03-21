@@ -62,4 +62,11 @@ dnsrecord_t *dnsrecord_new(void);
  */
 void dnsrecord_free(dnsrecord_t *);
 
+/**
+ * Prints a pretty version of this dnsrecord.
+ *
+ * @param record The record to print
+ */
+void dnsrecord_print(dnsrecord_t *record);
+
 #endif
