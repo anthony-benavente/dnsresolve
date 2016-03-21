@@ -48,7 +48,7 @@ dnsmsg_t *dnsmsg_new(uint16_t options) {
 
 void dnsmsg_print(dnsmsg_t *msg) {
     printf("-----------------------------------------------\n");
-    printf(";; Header\n\n");
+    printf(";; Header\n");
     printf("  ID:             %-#4x\n", msg->header->id);
     printf("  Response Code:  %-#4x\n", msg->header->rcode);
     printf("  Flags:          %-#4x\n", dnsmsg_header_get_opt(msg->header));
@@ -148,6 +148,23 @@ dnsrecord_t *dnsmsg_parse_record(uint8_t **buf, uint8_t *original_buf) {
     return result;
 }
 
+// char *dnsmsg_parse_name(uint8_t **buf, uint8_t *original_buf) {
+//     int i;
+    
+//     // Read name from buffer
+//     uint8_t label_len = get_uint8(buf);
+//     char *name = calloc(sizeof(char *), MAX_NAME_LEN);
+//     char *name_ptr = name; // This variable is used like a string builder
+    
+//     do {
+        
+//     } 
+    
+//     // If encountered pointer, recurse
+//     if ((label_len & 0xc0) == 0xc0) {
+//     }
+// }
+
 char *dnsmsg_parse_name(uint8_t **buf, uint8_t *original_buf) {
     int i = 0;
     uint8_t label_len = get_uint8(buf);
@@ -155,15 +172,15 @@ char *dnsmsg_parse_name(uint8_t **buf, uint8_t *original_buf) {
     char *name_ptr = name;
     do {
         if ((label_len & 0xc0) == 0xc0) {
-             // label_len indicates a pointer
-            uint16_t offset = ((label_len & 0x3f) << 8) | get_uint8(buf);
-            // Rewind buf
+            // Get new buf position
+            int offset = ((label_len & 0x3f << 8) | get_uint8(buf));
             uint8_t *new_buf_pos = original_buf + offset;
-            int new_label_len = *(new_buf_pos++);
-            for (i = 0; i < new_label_len; i++) {
-                *(name_ptr++) = (char) *(new_buf_pos++);
+            char *pointed = dnsmsg_parse_name(&new_buf_pos, original_buf);
+            for (i = 0; pointed[i] != '\0'; i++) {
+                *(name_ptr++) = pointed[i];
             }
-            *(name_ptr++) = '.';
+            *(name_ptr++) = '\0';
+            free(pointed); // pointed is no longer needed. Goodbye
         } else {
             for (i = 0; i < label_len; i++) {
                 *(name_ptr++) = (char) get_uint8(buf);
