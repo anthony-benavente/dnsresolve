@@ -148,23 +148,6 @@ dnsrecord_t *dnsmsg_parse_record(uint8_t **buf, uint8_t *original_buf) {
     return result;
 }
 
-// char *dnsmsg_parse_name(uint8_t **buf, uint8_t *original_buf) {
-//     int i;
-    
-//     // Read name from buffer
-//     uint8_t label_len = get_uint8(buf);
-//     char *name = calloc(sizeof(char *), MAX_NAME_LEN);
-//     char *name_ptr = name; // This variable is used like a string builder
-    
-//     do {
-        
-//     } 
-    
-//     // If encountered pointer, recurse
-//     if ((label_len & 0xc0) == 0xc0) {
-//     }
-// }
-
 char *dnsmsg_parse_name(uint8_t **buf, uint8_t *original_buf) {
     int i = 0;
     uint8_t label_len = get_uint8(buf);
@@ -181,13 +164,14 @@ char *dnsmsg_parse_name(uint8_t **buf, uint8_t *original_buf) {
             }
             *(name_ptr++) = '\0';
             free(pointed); // pointed is no longer needed. Goodbye
+            label_len = 0; // names/pointers cannot follow pointers so end here
         } else {
             for (i = 0; i < label_len; i++) {
                 *(name_ptr++) = (char) get_uint8(buf);
             }
             *(name_ptr++) = '.';
+            label_len = get_uint8(buf);
         }
-        label_len = get_uint8(buf);
     } while (label_len != 0);
     return name;
 }
