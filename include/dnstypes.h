@@ -37,4 +37,29 @@
 #define DNS_OPCODE_IQUERY 1
 #define DNS_OPCODE_STATUS 2
 
+#define GET_OP(arg) arg == 0 ? "QUERY" : arg == 1 ? "IQUERY" : "STATUS"
+#define GET_RCODE(arg) arg == 0 ? "No Error" :  \
+    arg == 1 ? "Format error" : \
+    arg == 2 ? "Server error" : \
+    arg == 3 ? "Name error" : \
+    arg == 4 ? "Implementation error" : \
+    arg == 5 ? "Refused error" : \
+    "Unknown error"
+        
+#define GET_TYPE(arg) arg == 1 ? "A" : \
+    arg == 2 ? "NS" : \
+    arg == 5 ? "CNAME" : \
+    arg == 6 ? "SOA" : \
+    arg == 12 ? "PTR" : \
+    arg == 13 ? "HINFO" : \
+    arg == 14 ? "MINFO" : \
+    arg == 15 ? "MX" : \
+    arg == 16 ? "TXT" : \
+    "UNKNOWN"   
+    
+#define GET_CLASS(arg) arg == 1 ? "IN" : \
+    arg == 3 ? "CH" : \
+    arg == 4 ? "HS" : \
+    "UNKNOWN"
+
 #endif

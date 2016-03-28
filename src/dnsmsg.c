@@ -50,7 +50,7 @@ void dnsmsg_print(dnsmsg_t *msg) {
     printf("-----------------------------------------------\n");
     printf(";; Header\n");
     printf("  ID:             %-#4x\n", msg->header->id);
-    printf("  Response Code:  %-#4x\n", msg->header->rcode);
+    printf("  Response Code:  %s\n", GET_RCODE(msg->header->rcode));
     printf("  Flags:          %-#4x\n", dnsmsg_header_get_opt(msg->header));
     printf("  Questions:      %-4d\n", msg->header->qdcount);
     printf("  Answers:        %-4d\n", msg->header->ancount);
@@ -59,8 +59,8 @@ void dnsmsg_print(dnsmsg_t *msg) {
     printf("\n");
     printf(";; Question Section\n");
     printf("  QNAME: %s\n", msg->query->qname);
-    printf("  QTYPE: %x\n", msg->query->qtype);
-    printf("  QCLASS: %x\n", msg->query->qclass);
+    printf("  QTYPE: %s\n", GET_TYPE(msg->query->qtype));
+    printf("  QCLASS: %s\n", GET_CLASS(msg->query->qclass));
     printf("\n");
     printf(";; Answer Section\n");
     int i = 0;

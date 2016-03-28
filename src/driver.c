@@ -68,11 +68,12 @@ void get_ns_ip(uint8_t *buf, int argc, char **argv) {
          if (fp) { // If resolv.conf was found. If it wasn't, exit with an error
             char line_buf[MAX_LINE];
             while (fgets(line_buf, MAX_LINE, fp) != NULL) {
+                char *original_line_buf = line_buf;
                 if (strstr(line_buf, "nameserver") != NULL) {
                     // Found nameserver in resolv.conf :)
                     
                     // TODO: This line underneath doesn't work... why?
-                    sscanf(line_buf, "%d.%d.%d.%d", &buf[0], &buf[1], 
+                    sscanf(original_line_buf, "%d.%d.%d.%d", &buf[0], &buf[1], 
                         &buf[2], &buf[3]);
                     break;
                 }
